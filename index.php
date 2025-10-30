@@ -25,10 +25,20 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 }
 
 // 2. DELETE (Hapus Tugas)
+// ======================================================
+// VERSI RENTAN SQL INJECTION
+// ======================================================
 if (isset($_GET['delete_task'])) {
-    $task_id = $_GET['delete_task'];
-    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?");
-    $stmt->execute([$task_id]);
+    // Input pengguna diambil langsung
+    $task_id = $_GET['delete_task']; 
+    
+    // VULNERABILITY: Input pengguna ($task_id) langsung
+    // disambungkan ke dalam string query SQL.
+    $sql = "DELETE FROM tasks WHERE id = " . $task_id; 
+    
+    // Menjalankan query yang rentan
+    $db->query($sql); 
+    
     header("Location: index.php");
     exit;
 }
