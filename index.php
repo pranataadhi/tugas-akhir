@@ -33,7 +33,7 @@ if (isset($_GET['delete_task'])) {
     exit;
 }
 
-// 3. READ (Baca Tugas & Pencarian)
+// 3. READ (Baca Tugas & Pencarian) harus vuln
 $search_query = "";
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
 
