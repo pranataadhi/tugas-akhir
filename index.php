@@ -26,19 +26,16 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 
 // 2. DELETE (Hapus Tugas)
 // ======================================================
-// VERSI RENTAN SQL INJECTION
+// VERSI RENTAN SQL INJECTION (MODIFIKASI UNTUK SONARQUBE)
 // ======================================================
 if (isset($_GET['delete_task'])) {
-    // Input pengguna diambil langsung
-    $task_id = $_GET['delete_task']; 
-    
-    // VULNERABILITY: Input pengguna ($task_id) langsung
-    // disambungkan ke dalam string query SQL.
-    $sql = "DELETE FROM tasks WHERE id = " . $task_id; 
-    
-    // Menjalankan query yang rentan
-    $db->query($sql); 
-    
+    $task_id = $_GET['delete_task'];
+
+    // PERUBAHAN PENTING:
+    // Kita melakukan penggabungan string (concatenation) LANGSUNG 
+    // di dalam fungsi query(). Ini memicu aturan SonarQube Community.
+    $db->query("DELETE FROM tasks WHERE id = " . $task_id);
+
     header("Location: index.php");
     exit;
 }
@@ -132,8 +129,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php
     if (!empty($search_query)) {
         // ======================================================
-        // KERENTANAN XSS (SAST akan mendeteksi ini)
-        // Input dari $_GET['search'] langsung di-echo tanpa filter
+        // KERENTANAN XSS
         // ======================================================
         echo "<h3>Hasil pencarian untuk: " . $search_query . "</h3>";
     }
