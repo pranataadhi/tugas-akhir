@@ -40,7 +40,7 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 //     exit;
 // }
 
-// versi di fix
+// versi di fixxx
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
 
