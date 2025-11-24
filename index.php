@@ -28,18 +28,31 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 // ======================================================
 // VERSI RENTAN SQL INJECTION (MODIFIKASI UNTUK SONARQUBE)
 // ======================================================
+// if (isset($_GET['delete_task'])) {
+//     $task_id = $_GET['delete_task'];
+
+// PERUBAHAN PENTING:
+// Kita melakukan penggabungan string (concatenation) LANGSUNG
+// di dalam fungsi query(). Ini memicu aturan SonarQube Community.
+//     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
+
+//     header("Location: index.php");
+//     exit;
+// }
+
+// versi di fix
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
 
-    // PERUBAHAN PENTING:
-    // Kita melakukan penggabungan string (concatenation) LANGSUNG 
-    // di dalam fungsi query(). Ini memicu aturan SonarQube Community.
-    $db->query("DELETE FROM tasks WHERE id = " . $task_id);
+    // Menggunakan placeholder (?) untuk data
+    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?");
+
+    // Mengirim data secara terpisah saat execute
+    $stmt->execute([$task_id]);
 
     header("Location: index.php");
     exit;
 }
-
 // 3. READ (Baca Tugas & Pencarian) harus vuln
 $search_query = "";
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
