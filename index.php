@@ -1,39 +1,35 @@
 <?php
-// Import koneksi database
-require_once 'config/database.php';
+require_once 'vendor/autoload.php'; // Autoload dari Composer
+use App\Config;
+use App\TaskManager;
 
-// --- Logika READ (Hanya untuk menampilkan data) ---
-$search_query = "";
-$sql = "SELECT * FROM tasks ORDER BY id DESC";
+$db = Config::getConnection();
+// Cek koneksi, jika gagal (misal saat build docker image tanpa DB) jangan crash
+$tasks = [];
+if ($db) {
+    $manager = new TaskManager($db);
+    $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 
-if (isset($_GET['search']) && !empty($_GET['search'])) {
-    $search_query = $_GET['search'];
-    $sql = "SELECT * FROM tasks WHERE task_name LIKE ? ORDER BY id DESC";
+    if ($search_query) {
+        $tasks = $manager->searchTasks($search_query);
+    } else {
+        $tasks = $manager->getAllTasks();
+    }
 }
-
-$stmt = $db->prepare($sql);
-if (!empty($search_query)) {
-    $stmt->execute(["%$search_query%"]);
-} else {
-    $stmt->execute();
-}
-$tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <title>Aplikasi Todo List</title>
-    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
     <h1>Aplikasi Todo List</h1>
 
     <form action="index.php" method="GET">
-        <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
+        <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query ?? ''); ?>">
         <button type="submit">Cari</button>
     </form>
 
@@ -50,7 +46,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($tasks as $task): ?>
             <li>
                 <span><?php echo htmlspecialchars($task['task_name']); ?></span>
-                <a href="actions/delete_task.php?id=<?php echo $task['id']; ?>" onclick="return confirm('Yakin hapus?');">Hapus</a>
+                <a href="actions/delete_task.php?id=<?php echo $task['id']; ?>">Hapus</a>
             </li>
         <?php endforeach; ?>
     </ul>

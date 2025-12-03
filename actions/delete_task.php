@@ -1,16 +1,15 @@
 <?php
-// actions/delete_task.php
-require_once '../config/database.php';
+require_once '../vendor/autoload.php';
+
+use App\Config;
+use App\TaskManager;
 
 if (isset($_GET['id'])) {
-    $task_id = $_GET['id'];
-
-    // Prepared Statement untuk keamanan
-    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?");
-    $stmt->execute([$task_id]);
+    $db = Config::getConnection();
+    if ($db) {
+        $manager = new TaskManager($db);
+        $manager->deleteTask($_GET['id']);
+    }
 }
-
-// Kembalikan ke halaman utama
 header("Location: ../index.php");
 exit;
-?>
