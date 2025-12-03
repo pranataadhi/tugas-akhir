@@ -1,43 +1,10 @@
 <?php
 // index.php
 
-// --- 1. Konfigurasi Database ---
-$db_host = 'app_db';
-$db_name = 'db_todolist';
-$db_user = 'user_todo';
-// Mengambil password dari Environment Variable (Aman)
-$db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
+// Panggil config untuk koneksi database
+require_once 'config/database.php';
 
-try {
-    $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Koneksi database gagal: " . $e->getMessage());
-}
-
-// --- 2. Logika Aplikasi (Backend) ---
-
-// CREATE
-if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
-    $task_name = $_POST['task_name'];
-    // Prepared Statement (Anti SQL Injection)
-    $stmt = $db->prepare("INSERT INTO tasks (task_name) VALUES (?)");
-    $stmt->execute([$task_name]);
-    header("Location: index.php");
-    exit;
-}
-
-// DELETE
-if (isset($_GET['delete_task'])) {
-    $task_id = $_GET['delete_task'];
-    // Prepared Statement (Anti SQL Injection)
-    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?");
-    $stmt->execute([$task_id]);
-    header("Location: index.php");
-    exit;
-}
-
-// READ
+// --- Logika READ Data ---
 $search_query = "";
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
 
@@ -60,58 +27,8 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Aman)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-        }
-
-        h1,
-        h3 {
-            text-align: center;
-        }
-
-        form {
-            display: flex;
-            margin-bottom: 20px;
-        }
-
-        form input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-
-        form button {
-            padding: 10px 15px;
-            background: #007BFF;
-            color: white;
-            border: none;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background: white;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        li a {
-            text-decoration: none;
-            color: #dc3545;
-            margin-left: 10px;
-        }
-    </style>
+    <title>Aplikasi Todo List (Clean Architecture)</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -126,7 +43,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <h3>Hasil pencarian untuk: '<?php echo htmlspecialchars($search_query); ?>'</h3>
     <?php endif; ?>
 
-    <form action="index.php" method="POST">
+    <form action="actions/add_task.php" method="POST">
         <input type="text" name="task_name" placeholder="Tugas baru..." required>
         <button type="submit" name="add_task">Tambah</button>
     </form>
@@ -135,7 +52,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($tasks as $task): ?>
             <li>
                 <span><?php echo htmlspecialchars($task['task_name']); ?></span>
-                <a href="index.php?delete_task=<?php echo $task['id']; ?>">Hapus</a>
+                <a href="actions/delete_task.php?id=<?php echo $task['id']; ?>" onclick="return confirm('Yakin ingin menghapus?');">Hapus</a>
             </li>
         <?php endforeach; ?>
     </ul>
