@@ -8,7 +8,7 @@ $db_user = 'user_todo';
 
 // [VULNERABILITY 1] Hardcoded Password
 // SonarCloud akan mendeteksi ini sebagai "Critical Security Hotspot" atau Blocker
-$db_pass = 'password_todo';
+$db_pass = 'password_todo'; 
 
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
@@ -31,12 +31,12 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 // DELETE
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
-
+    
     // [VULNERABILITY 2] SQL Injection
     // Menyambungkan variabel langsung ke query tanpa prepare
     $sql = "DELETE FROM tasks WHERE id = " . $task_id;
     $db->query($sql);
-
+    
     header("Location: index.php");
     exit;
 }
@@ -61,70 +61,20 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <title>Aplikasi Todo List (Rentan)</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #f4f4f4;
-        }
-
-        h1,
-        h3 {
-            text-align: center;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            margin-bottom: 20px;
-        }
-
-        form input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
-        }
-
-        form button {
-            padding: 10px 15px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 0 4px 4px 0;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background: white;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        li a {
-            text-decoration: none;
-            color: #dc3545;
-            margin-left: 10px;
-            font-weight: bold;
-        }
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background-color: #f4f4f4; }
+        h1, h3 { text-align: center; color: #333; }
+        form { display: flex; margin-bottom: 20px; }
+        form input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; }
+        form button { padding: 10px 15px; background: #007BFF; color: white; border: none; cursor: pointer; border-radius: 0 4px 4px 0; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 10px 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        li a { text-decoration: none; color: #dc3545; margin-left: 10px; font-weight: bold; }
     </style>
 </head>
-
 <body>
     <h1>Aplikasi Todo List</h1>
 
@@ -151,5 +101,4 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endforeach; ?>
     </ul>
 </body>
-
 </html>
