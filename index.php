@@ -25,8 +25,8 @@ if (isset($_POST['update_task']) && !empty($_POST['task_name']) && !empty($_POST
     $stmt = $db->prepare("UPDATE tasks SET task_name = ? WHERE id = ?");
     $stmt->execute([$task_name, $task_id]);
     
-    // [FIX] Menggunakan konstanta
-    header(REDIRECT_TO_INDEX); 
+    // [FIX] Menggunakan konstanta (Pastikan tidak ada spasi di ujung baris ini)
+    header(REDIRECT_TO_INDEX);
     exit;
 }
 
@@ -149,4 +149,4 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </body>
 </html>
 
-<!-- sekarang bisa -->
+<!-- bisaaa -->
