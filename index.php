@@ -3,11 +3,15 @@
 $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
-$db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
+
+// [SONARQUBE: Security Hotspot] Hardcoded Password
+// Menyimpan password langsung di code adalah larangan keras.
+$db_pass = 'password_todo'; 
 
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // [BAD PRACTICE] Error reporting dimatikan supaya error SQL tidak terlihat di layar (tapi menyulitkan debug)
+    // $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
 } catch (PDOException $e) {
     die("Koneksi database gagal: " . $e->getMessage());
 }
