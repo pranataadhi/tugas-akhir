@@ -151,9 +151,16 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <h3>Hasil pencarian untuk: '<?php echo htmlspecialchars($search_query); ?>'</h3>
     <?php endif; ?>
 
-    <form action="index.php" method="POST">
-        <input type="text" name="task_name" placeholder="Tugas baru..." required>
-        <button type="submit" name="add_task">Tambah</button>
+<form action="index.php" method="POST">
+        <?php if ($task_to_edit): ?>
+            <input type="hidden" name="task_id" value="<?php echo $task_to_edit['id']; ?>">
+            <input type="text" name="task_name" value="<?php echo htmlspecialchars($task_to_edit['task_name']); ?>" required>
+            <button type="submit" name="update_task" class="btn-update">Simpan Perubahan</button>
+            <a href="index.php" class="btn-cancel">Batal</a>
+        <?php else: ?>
+            <input type="text" name="task_name" placeholder="Tugas baru..." required>
+            <button type="submit" name="add_task" class="btn-add">Tambah</button>
+        <?php endif; ?>
     </form>
 
     <ul>
