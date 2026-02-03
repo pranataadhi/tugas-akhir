@@ -140,7 +140,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <h1>Aplikasi Todo List</h1>
+    <h1>Simple Todo List</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
@@ -151,7 +151,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <h3>Hasil pencarian untuk: '<?php echo htmlspecialchars($search_query); ?>'</h3>
     <?php endif; ?>
 
-<form action="index.php" method="POST">
+    <form action="index.php" method="POST">
         <?php if ($task_to_edit): ?>
             <input type="hidden" name="task_id" value="<?php echo $task_to_edit['id']; ?>">
             <input type="text" name="task_name" value="<?php echo htmlspecialchars($task_to_edit['task_name']); ?>" required>
