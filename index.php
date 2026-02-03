@@ -3,8 +3,6 @@
 $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
-
-// [SECURITY] Ambil password dari Environment Variable agar tidak hardcoded
 $db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
 
 try {
@@ -16,10 +14,20 @@ try {
 
 // --- 2. Logika Aplikasi (Backend) ---
 
+// UPDATE (Simpan Perubahan Tugas) - Ditaruh paling atas
+if (isset($_POST['update_task']) && !empty($_POST['task_name']) && !empty($_POST['task_id'])) {
+    $task_id = $_POST['task_id'];
+    $task_name = $_POST['task_name'];
+
+    $stmt = $db->prepare("UPDATE tasks SET task_name = ? WHERE id = ?");
+    $stmt->execute([$task_name, $task_id]);
+    header("Location: index.php"); // Redirect agar mode edit selesai
+    exit;
+}
+
 // CREATE (Tambah Tugas)
 if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
     $task_name = $_POST['task_name'];
-    // [SECURITY] Prepared Statement mencegah SQL Injection
     $stmt = $db->prepare("INSERT INTO tasks (task_name) VALUES (?)");
     $stmt->execute([$task_name]);
     header("Location: index.php");
@@ -29,7 +37,6 @@ if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
 // DELETE (Hapus Tugas)
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
-    // [SECURITY] Prepared Statement mencegah SQL Injection
     $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?");
     $stmt->execute([$task_id]);
     header("Location: index.php");
@@ -68,9 +75,8 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Aman)</title>
+    <title>Aplikasi Todo List (CRUD)</title>
     <style>
-        /* CSS digabung di sini agar simpel */
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
@@ -84,31 +90,55 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #333;
         }
 
+        /* Form Styling */
         form {
             display: flex;
             margin-bottom: 20px;
+            gap: 5px;
         }
 
         form input[type="text"] {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
+            border-radius: 4px;
         }
 
-        form button {
+        /* Button Styles */
+        button {
             padding: 10px 15px;
-            background: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 0 4px 4px 0;
+            border-radius: 4px;
         }
 
-        form button:hover {
-            background-color: #0056b3;
+        .btn-add {
+            background: #007BFF;
         }
 
+        .btn-add:hover {
+            background: #0056b3;
+        }
+
+        .btn-update {
+            background: #28a745;
+        }
+
+        .btn-update:hover {
+            background: #218838;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            color: white;
+            display: inline-block;
+        }
+
+        /* List Styling */
         ul {
             list-style: none;
             padding: 0;
@@ -126,29 +156,44 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        li a {
-            text-decoration: none;
-            color: #dc3545;
-            margin-left: 10px;
-            font-weight: bold;
+        /* Action Links */
+        .actions {
+            display: flex;
+            gap: 10px;
         }
 
-        li a:hover {
-            text-decoration: underline;
+        .actions a {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
         }
+
+        .edit-link {
+            color: #ffc107;
+        }
+
+        /* Kuning */
+        .delete-link {
+            color: #dc3545;
+        }
+
+        /* Merah */
     </style>
 </head>
 
 <body>
-    <h1>Simple Todo List</h1>
+    <h1>Aplikasi Todo List</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
-        <button type="submit">Cari</button>
+        <button type="submit" class="btn-add">Cari</button>
+        <?php if (!empty($search_query)): ?>
+            <a href="index.php" class="btn-cancel" style="margin-left: 5px;">Reset</a>
+        <?php endif; ?>
     </form>
 
     <?php if (!empty($search_query)): ?>
-        <h3>Hasil pencarian untuk: '<?php echo htmlspecialchars($search_query); ?>'</h3>
+        <h3>Hasil: '<?php echo htmlspecialchars($search_query); ?>'</h3>
     <?php endif; ?>
 
     <form action="index.php" method="POST">
@@ -167,7 +212,11 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($tasks as $task): ?>
             <li>
                 <span><?php echo htmlspecialchars($task['task_name']); ?></span>
-                <a href="index.php?delete_task=<?php echo $task['id']; ?>" onclick="return confirm('Yakin hapus?');">Hapus</a>
+                <div class="actions">
+                    <a href="index.php?edit_task=<?php echo $task['id']; ?>" class="edit-link">Edit</a>
+                    |
+                    <a href="index.php?delete_task=<?php echo $task['id']; ?>" class="delete-link" onclick="return confirm('Yakin hapus?');">Hapus</a>
+                </div>
             </li>
         <?php endforeach; ?>
     </ul>
