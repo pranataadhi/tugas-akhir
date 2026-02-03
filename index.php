@@ -111,7 +111,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h1>Simple Todo List</h1>
 
     <form action="index.php" method="GET">
-        <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
+        <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo ($search_query); ?>">
         <button type="submit" class="btn-add">Cari</button>
         <?php if(!empty($search_query)): ?>
             <a href="index.php" class="btn-cancel" style="margin-left: 5px;">Reset</a>
