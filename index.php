@@ -83,7 +83,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Clean Code)</title>
+    <title>Simple Todo List (Clean Code)</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background-color: #f4f4f4; }
         h1, h3 { text-align: center; color: #333; }
