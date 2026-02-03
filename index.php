@@ -150,4 +150,4 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </html>
 
 <!-- bisaaa -->
-<!-- aplikasi todo list dengan php dan pdo, sudah diperbaiki sesuai prinsip clean code -->
+<!-- aplikasi sudah diperbaiki sesuai prinsip clean code -->
