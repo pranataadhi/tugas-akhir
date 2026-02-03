@@ -27,7 +27,7 @@ if (isset($_POST['update_task']) && !empty($_POST['task_name']) && !empty($_POST
     
     // [FIX] Menggunakan konstanta (Pastikan tidak ada spasi di ujung baris ini)
     header(REDIRECT_TO_INDEX);
-    exit;
+    exit; 
 }
 
 // CREATE (Tambah Tugas)
@@ -150,5 +150,4 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </html>
 
 <!-- bisaaa -->
-<!-- todo -->
-<!-- aplikasi todo sudah diperbaiki sesuai prinsip clean code -->
+<!-- aplikasi sudah diperbaiki sesuai prinsip clean code -->
