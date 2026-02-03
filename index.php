@@ -182,7 +182,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <h1>Aplikasi Todo List</h1>
+    <h1>Simple Todo List</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
