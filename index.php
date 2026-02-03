@@ -36,6 +36,15 @@ if (isset($_GET['delete_task'])) {
     exit;
 }
 
+// PERSIAPAN EDIT (Ambil data jika tombol Edit diklik)
+$task_to_edit = null;
+if (isset($_GET['edit_task'])) {
+    $id = $_GET['edit_task'];
+    $stmt = $db->prepare("SELECT * FROM tasks WHERE id = ?");
+    $stmt->execute([$id]);
+    $task_to_edit = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 // READ (Tampil & Cari Tugas)
 $search_query = "";
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
@@ -158,4 +167,3 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </body>
 
 </html>
-
