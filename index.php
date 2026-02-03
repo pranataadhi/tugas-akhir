@@ -21,13 +21,13 @@ const REDIRECT_TO_INDEX = 'Location: index.php';
 if (isset($_POST['update_task']) && !empty($_POST['task_name']) && !empty($_POST['task_id'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
-    
+
     $stmt = $db->prepare("UPDATE tasks SET task_name = ? WHERE id = ?");
     $stmt->execute([$task_name, $task_id]);
-    
+
     // [FIX] Menggunakan konstanta (Pastikan tidak ada spasi di ujung baris ini)
     header(REDIRECT_TO_INDEX);
-    exit; 
+    exit;
 }
 
 // CREATE (Tambah Tugas)
@@ -81,39 +81,115 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Simple Todo List (Clean Code)</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background-color: #f4f4f4; }
-        h1, h3 { text-align: center; color: #333; }
-        
-        form { display: flex; margin-bottom: 20px; gap: 5px; }
-        form input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        
-        button { padding: 10px 15px; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        .btn-add { background: #007BFF; }
-        .btn-add:hover { background: #0056b3; }
-        .btn-update { background: #28a745; }
-        .btn-update:hover { background: #218838; }
-        .btn-cancel { background: #6c757d; text-decoration: none; padding: 10px 15px; border-radius: 4px; color: white; display: inline-block;}
-        
-        ul { list-style: none; padding: 0; }
-        li { background: white; padding: 10px 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        
-        .actions { display: flex; gap: 10px; }
-        .actions a { text-decoration: none; font-weight: bold; font-size: 0.9em; }
-        .edit-link { color: #ffc107; }
-        .delete-link { color: #dc3545; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #f4f4f4;
+        }
+
+        h1,
+        h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 5px;
+        }
+
+        form input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-add {
+            background: #007BFF;
+        }
+
+        .btn-add:hover {
+            background: #0056b3;
+        }
+
+        .btn-update {
+            background: #28a745;
+        }
+
+        .btn-update:hover {
+            background: #218838;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            color: white;
+            display: inline-block;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .actions a {
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .edit-link {
+            color: #ffc107;
+        }
+
+        .delete-link {
+            color: #dc3545;
+        }
     </style>
 </head>
+
 <body>
     <h1>Simple Todo List</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
         <button type="submit" class="btn-add">Cari</button>
-        <?php if(!empty($search_query)): ?>
+        <?php if (!empty($search_query)): ?>
             <a href="index.php" class="btn-cancel" style="margin-left: 5px;">Reset</a>
         <?php endif; ?>
     </form>
@@ -147,6 +223,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endforeach; ?>
     </ul>
 </body>
+
 </html>
 
 <!-- bisaaa -->
