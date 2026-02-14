@@ -34,7 +34,7 @@ if (isset($_POST['update_task']) && !empty($_POST['task_name']) && !empty($_POST
 if (isset($_POST['add_task']) && !empty($_POST['task_name'])) {
     $task_name = $_POST['task_name'];
     $stmt = $db->prepare("INSERT INTO tasks (task_name) VALUES (?)");
-    $stmt->execute([$task_name]);
+    $stmt->execute([$task_name]); 
 
     // [FIX] Menggunakan konstanta
     header(REDIRECT_TO_INDEX);
@@ -149,4 +149,4 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </body>
 </html>
 
-<!-- bisaaa -->
+<!-- bisaaa todo -->
