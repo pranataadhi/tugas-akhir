@@ -150,4 +150,3 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </html>
 
 <!-- bisaaa -->
-<!-- aplikasi sudah diperbaiki sesuai prinsip clean code -->
