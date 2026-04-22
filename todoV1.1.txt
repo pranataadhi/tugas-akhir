@@ -5,7 +5,7 @@ $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
-// [SKENARIO - SECURITY HOTSPOT / HIGH] 
+// [SKENARIO - SECURITY HOTSPOT / HIGH]
 // Menyimpan password langsung di dalam kode (Hardcoded Credentials)
 $db_pass = 'password_todo';
 
@@ -20,12 +20,10 @@ if (isset($_POST['update_task'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
 
-    // [SKENARIO - VULNERABILITY / BLOCKER] 
+    // [SKENARIO - VULNERABILITY / BLOCKER]
     // SQL Injection: Variabel langsung dimasukkan tanpa prepare
     $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
 
-    // [SKENARIO - CODE SMELL / MEDIUM] Duplikasi string literal "Location: index.php"
-    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace (Ada spasi kosong di ujung baris ini) -> 
     header("Location: index.php");
     exit;
 }
@@ -197,7 +195,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($tasks as $task): ?>
             <li>
                 <span><?php echo $task['task_name']; ?></span>
-                <div class="actions">
+                <div class="actions"> 
                     <a href="index.php?edit_task=<?php echo $task['id']; ?>" class="edit-link">Edit</a>
                     |
                     <a href="index.php?delete_task=<?php echo $task['id']; ?>" class="delete-link">Hapus</a>

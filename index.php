@@ -1,13 +1,13 @@
 <?php
-// --- TAHAP 2 MURNI: HANYA MENGHILANGKAN BLOCKER ---
+// --- TAHAP 1: SKENARIO SANGAT RENTAN (FULL ISSUE) ---
 
 $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
-// [PERBAIKAN BLOCKER 1]
-// Password tidak lagi hardcoded. (Mengatasi "Revoke and change this password")
-$db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
+// [SKENARIO - SECURITY HOTSPOT / HIGH]
+// Menyimpan password langsung di dalam kode (Hardcoded Credentials)
+$db_pass = 'password_todo';
 
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
@@ -20,11 +20,10 @@ if (isset($_POST['update_task'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
 
-    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA! Kita tidak pakai prepare() dulu.
+    // [SKENARIO - VULNERABILITY / BLOCKER]
+    // SQL Injection: Variabel langsung dimasukkan tanpa prepare
     $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
 
-    // [STILL ISSUE - HIGH/MEDIUM] Duplikasi string
-    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
@@ -33,10 +32,9 @@ if (isset($_POST['update_task'])) {
 if (isset($_POST['add_task'])) {
     $task_name = $_POST['task_name'];
 
-    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
+    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
 
-    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
@@ -45,26 +43,20 @@ if (isset($_POST['add_task'])) {
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
 
-    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
+    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
 
-    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA READ & SEARCH ===
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
-
-// [PERBAIKAN BLOCKER 2]
-// Mengatasi error "Don't use the query SELECT * FROM".
-// Kita ganti * menjadi "id, task_name".
-$sql = "SELECT id, task_name FROM tasks ORDER BY id DESC";
+$sql = "SELECT * FROM tasks ORDER BY id DESC";
 
 if (!empty($search_query)) {
-    // [PERBAIKAN BLOCKER 2] SELECT * diganti.
-    // [TAPI STILL ISSUE - HIGH] SQL Injection masih disengaja (variabel $search_query langsung ditempel)
-    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
+    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
+    $sql = "SELECT * FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
 }
 
 $stmt = $db->query($sql);
@@ -76,7 +68,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Tahap 2)</title>
+    <title>Aplikasi Todo List (Push 1)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -168,7 +160,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <h1>Aplikasi Todo List (Tahap 2: Hanya Blocker yang Hilang)</h1>
+    <h1>Aplikasi Todo List (Tahap 1: Rentan)</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo $search_query; ?>">
@@ -184,11 +176,9 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <form action="index.php" method="POST">
         <?php if (isset($_GET['edit_task'])):
+            // Ambil data untuk form edit secara rentan (SQLi)
             $id = $_GET['edit_task'];
-
-            // [PERBAIKAN BLOCKER] SELECT * diganti.
-            // [STILL ISSUE - HIGH] SQL Injection masih disengaja.
-            $edit_stmt = $db->query("SELECT id, task_name FROM tasks WHERE id = " . $id);
+            $edit_stmt = $db->query("SELECT * FROM tasks WHERE id = " . $id);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
         ?>
             <input type="hidden" name="task_id" value="<?php echo $task_to_edit['id']; ?>">
