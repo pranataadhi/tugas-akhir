@@ -1,4 +1,4 @@
-<?php
+<?php 
 // --- TAHAP 2 MURNI: HANYA MENGHILANGKAN BLOCKER ---
 
 $db_host = 'app_db';
@@ -71,7 +71,7 @@ $stmt = $db->query($sql);
 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="id">
 
 <head>
