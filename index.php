@@ -23,11 +23,9 @@ if (isset($_GET['debug_mode'])) {
     // kosong
 }
 
-// [SKENARIO - CODE SMELL / LOW] TODO Tag (Kebal Auto-Format)
-// TODO: Jangan lupa hapus ini sebelum rilis ke production
-
 // === LOGIKA UPDATE ===
-if (isset($_POST['update_task'])) {
+// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison (== true)
+if (isset($_POST['update_task']) == true) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
 
@@ -40,8 +38,8 @@ if (isset($_POST['update_task'])) {
 }
 
 // === LOGIKA CREATE ===
-// [SKENARIO - CODE SMELL / LOW] Redundant Parentheses (Tanda kurung berlebih, kebal Auto-Format)
-if ((isset($_POST['add_task']))) {
+// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
+if (isset($_POST['add_task']) == true) {
     $task_name = $_POST['task_name'];
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
@@ -52,9 +50,9 @@ if ((isset($_POST['add_task']))) {
 }
 
 // === LOGIKA DELETE ===
-if (isset($_GET['delete_task'])) {
-    // [SKENARIO - CODE SMELL / LOW] Redundant Parentheses
-    $task_id = ($_GET['delete_task']);
+// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
+if (isset($_GET['delete_task']) == true) {
+    $task_id = $_GET['delete_task'];
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
@@ -67,7 +65,8 @@ if (isset($_GET['delete_task'])) {
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
 
-if (!empty($search_query)) {
+// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
+if (!empty($search_query) == true) {
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $sql = "SELECT * FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
 }
@@ -188,7 +187,9 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <form action="index.php" method="POST">
-        <?php if (isset($_GET['edit_task'])):
+        <?php
+        // [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
+        if (isset($_GET['edit_task']) == true):
             $id = $_GET['edit_task'];
             $edit_stmt = $db->query("SELECT * FROM tasks WHERE id = " . $id);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
