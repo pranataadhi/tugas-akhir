@@ -1,7 +1,7 @@
 <?php
 // --- TAHAP 1: SKENARIO SANGAT RENTAN (FULL ISSUE) ---
 
-$db_host = 'app_db'; 
+$db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
@@ -24,6 +24,8 @@ if (isset($_POST['update_task'])) {
     // SQL Injection: Variabel langsung dimasukkan tanpa prepare
     $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
 
+    // [SKENARIO - CODE SMELL / MEDIUM] Duplikasi literal string
+    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace (Ada 3 spasi di akhir baris ini) ->   
     header("Location: index.php");
     exit;
 }
@@ -35,6 +37,7 @@ if (isset($_POST['add_task'])) {
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
 
+    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace ->   
     header("Location: index.php");
     exit;
 }
@@ -46,6 +49,7 @@ if (isset($_GET['delete_task'])) {
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
 
+    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace ->   
     header("Location: index.php");
     exit;
 }
@@ -195,7 +199,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($tasks as $task): ?>
             <li>
                 <span><?php echo $task['task_name']; ?></span>
-                <div class="actions"> 
+                <div class="actions">
                     <a href="index.php?edit_task=<?php echo $task['id']; ?>" class="edit-link">Edit</a>
                     |
                     <a href="index.php?delete_task=<?php echo $task['id']; ?>" class="delete-link">Hapus</a>
