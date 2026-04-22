@@ -1,13 +1,12 @@
 <?php
-// --- TAHAP 2: FOKUS PERBAIKAN SEMUA BLOCKER ---
+// --- TAHAP 2 MURNI: HANYA MENGHILANGKAN BLOCKER ---
 
 $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
 // [PERBAIKAN BLOCKER 1] 
-// Mengatasi error "Revoke and change this password". 
-// Password tidak lagi di-hardcode di dalam file.
+// Password tidak lagi hardcoded. (Mengatasi "Revoke and change this password")
 $db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo'; 
 
 try {
@@ -21,9 +20,8 @@ if (isset($_POST['update_task'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
     
-    // [PERBAIKAN BLOCKER SQLi] Menggunakan Prepared Statement
-    $stmt = $db->prepare("UPDATE tasks SET task_name = ? WHERE id = ?"); // NOSONAR
-    $stmt->execute([$task_name, $task_id]);
+    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA! Kita tidak pakai prepare() dulu.
+    $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
     
     // [STILL ISSUE - HIGH/MEDIUM] Duplikasi string
     // [STILL ISSUE - LOW] Trailing whitespace -> 
@@ -35,11 +33,10 @@ if (isset($_POST['update_task'])) {
 if (isset($_POST['add_task'])) {
     $task_name = $_POST['task_name'];
     
-    // [PERBAIKAN BLOCKER SQLi]
-    $stmt = $db->prepare("INSERT INTO tasks (task_name) VALUES (?)"); // NOSONAR
-    $stmt->execute([$task_name]);
+    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
+    $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
     
-    // [STILL ISSUE] Trailing whitespace -> 
+    // [STILL ISSUE - LOW] Trailing whitespace -> 
     header("Location: index.php"); 
     exit;
 }
@@ -48,11 +45,10 @@ if (isset($_POST['add_task'])) {
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
     
-    // [PERBAIKAN BLOCKER SQLi]
-    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?"); // NOSONAR
-    $stmt->execute([$task_id]);
+    // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
+    $db->query("DELETE FROM tasks WHERE id = " . $task_id);
     
-    // [STILL ISSUE] Trailing whitespace -> 
+    // [STILL ISSUE - LOW] Trailing whitespace -> 
     header("Location: index.php"); 
     exit;
 }
@@ -61,20 +57,17 @@ if (isset($_GET['delete_task'])) {
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
 
 // [PERBAIKAN BLOCKER 2] 
-// Mengatasi error "Don't use the query SELECT * FROM". Kita sebutkan kolomnya secara spesifik.
-$sql = "SELECT id, task_name FROM tasks ORDER BY id DESC"; // NOSONAR
+// Mengatasi error "Don't use the query SELECT * FROM". 
+// Kita ganti * menjadi "id, task_name".
+$sql = "SELECT id, task_name FROM tasks ORDER BY id DESC"; 
 
 if (!empty($search_query)) {
-    // [PERBAIKAN BLOCKER 2 & SQLi]
-    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE ? ORDER BY id DESC"; // NOSONAR
+    // [PERBAIKAN BLOCKER 2] SELECT * diganti.
+    // [TAPI STILL ISSUE - HIGH] SQL Injection masih disengaja (variabel $search_query langsung ditempel)
+    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
 }
 
-$stmt = $db->prepare($sql);
-if (!empty($search_query)) {
-    $stmt->execute(["%$search_query%"]);
-} else {
-    $stmt->execute();
-}
+$stmt = $db->query($sql);
 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -101,7 +94,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <h1>Aplikasi Todo List (Tahap 2: Blocker Diperbaiki)</h1>
+    <h1>Aplikasi Todo List (Tahap 2: Hanya Blocker yang Hilang)</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo $search_query; ?>">
@@ -119,9 +112,9 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php if (isset($_GET['edit_task'])): 
             $id = $_GET['edit_task'];
             
-            // [PERBAIKAN BLOCKER 3] Menghindari SELECT * dan SQL Injection
-            $edit_stmt = $db->prepare("SELECT id, task_name FROM tasks WHERE id = ?"); // NOSONAR
-            $edit_stmt->execute([$id]);
+            // [PERBAIKAN BLOCKER] SELECT * diganti.
+            // [STILL ISSUE - HIGH] SQL Injection masih disengaja.
+            $edit_stmt = $db->query("SELECT id, task_name FROM tasks WHERE id = " . $id);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
         ?>
             <input type="hidden" name="task_id" value="<?php echo $task_to_edit['id']; ?>">
