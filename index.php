@@ -9,18 +9,10 @@ $db_user = 'user_todo';
 // Menyimpan password langsung di dalam kode (Hardcoded Credentials)
 $db_pass = 'password_todo';
 
-// [SKENARIO - CODE SMELL / MEDIUM] Unused Local Variable
-$unused_variable_for_medium_issue = "Ini tidak pernah dipakai";
-
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
 } catch (PDOException $e) {
     die("Koneksi database gagal");
-}
-
-// [SKENARIO - CODE SMELL / MEDIUM] Empty Block
-if (isset($_GET['debug_mode'])) {
-    // kosong
 }
 
 // === LOGIKA UPDATE ===
@@ -38,36 +30,40 @@ if (isset($_POST['update_task']) == true) {
 }
 
 // === LOGIKA CREATE ===
-// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
-if (isset($_POST['add_task']) == true) {
+// [SKENARIO - CODE SMELL / MEDIUM] Useless parentheses (Tanda kurung ganda)
+if ((isset($_POST['add_task']))) {
     $task_name = $_POST['task_name'];
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
 
+    // [SKENARIO - CODE SMELL / HIGH] Duplikasi literal string
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA DELETE ===
-// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
-if (isset($_GET['delete_task']) == true) {
+// [SKENARIO - CODE SMELL / MEDIUM] Useless parentheses (Tanda kurung ganda)
+if ((isset($_GET['delete_task']))) {
     $task_id = $_GET['delete_task'];
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
 
+    // [SKENARIO - CODE SMELL / HIGH] Duplikasi literal string
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA READ & SEARCH ===
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
+
+// [SKENARIO - VULNERABILITY / BLOCKER] Penggunaan SELECT *
 $sql = "SELECT * FROM tasks ORDER BY id DESC";
 
-// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
+// [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison (== true)
 if (!empty($search_query) == true) {
-    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
+    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection & SELECT *
     $sql = "SELECT * FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
 }
 
@@ -191,6 +187,8 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // [SKENARIO - CODE SMELL / LOW] Redundant boolean comparison
         if (isset($_GET['edit_task']) == true):
             $id = $_GET['edit_task'];
+
+            // [SKENARIO - VULNERABILITY / BLOCKER] SQLi dan SELECT *
             $edit_stmt = $db->query("SELECT * FROM tasks WHERE id = " . $id);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
         ?>
