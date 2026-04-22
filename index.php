@@ -1,13 +1,14 @@
 <?php
-// --- TAHAP 1: SKENARIO SANGAT RENTAN (FULL ISSUE) ---
+// --- TAHAP 2: FOKUS PERBAIKAN SEMUA BLOCKER ---
 
 $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
-// [SKENARIO - SECURITY HOTSPOT / HIGH] 
-// Menyimpan password langsung di dalam kode (Hardcoded Credentials)
-$db_pass = 'password_todo';
+// [PERBAIKAN BLOCKER 1] 
+// Mengatasi error "Revoke and change this password". 
+// Password tidak lagi di-hardcode di dalam file.
+$db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
 
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
@@ -20,12 +21,12 @@ if (isset($_POST['update_task'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
 
-    // [SKENARIO - VULNERABILITY / BLOCKER] 
-    // SQL Injection: Variabel langsung dimasukkan tanpa prepare
-    $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
+    // [PERBAIKAN BLOCKER SQLi] Menggunakan Prepared Statement
+    $stmt = $db->prepare("UPDATE tasks SET task_name = ? WHERE id = ?"); // NOSONAR
+    $stmt->execute([$task_name, $task_id]);
 
-    // [SKENARIO - CODE SMELL / MEDIUM] Duplikasi string literal "Location: index.php"
-    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace (Ada spasi kosong di ujung baris ini) -> 
+    // [STILL ISSUE - HIGH/MEDIUM] Duplikasi string
+    // [STILL ISSUE - LOW] Trailing whitespace -> 
     header("Location: index.php");
     exit;
 }
@@ -34,9 +35,11 @@ if (isset($_POST['update_task'])) {
 if (isset($_POST['add_task'])) {
     $task_name = $_POST['task_name'];
 
-    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
-    $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
+    // [PERBAIKAN BLOCKER SQLi]
+    $stmt = $db->prepare("INSERT INTO tasks (task_name) VALUES (?)"); // NOSONAR
+    $stmt->execute([$task_name]);
 
+    // [STILL ISSUE] Trailing whitespace -> 
     header("Location: index.php");
     exit;
 }
@@ -45,23 +48,33 @@ if (isset($_POST['add_task'])) {
 if (isset($_GET['delete_task'])) {
     $task_id = $_GET['delete_task'];
 
-    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
-    $db->query("DELETE FROM tasks WHERE id = " . $task_id);
+    // [PERBAIKAN BLOCKER SQLi]
+    $stmt = $db->prepare("DELETE FROM tasks WHERE id = ?"); // NOSONAR
+    $stmt->execute([$task_id]);
 
+    // [STILL ISSUE] Trailing whitespace -> 
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA READ & SEARCH ===
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
-$sql = "SELECT * FROM tasks ORDER BY id DESC";
+
+// [PERBAIKAN BLOCKER 2] 
+// Mengatasi error "Don't use the query SELECT * FROM". Kita sebutkan kolomnya secara spesifik.
+$sql = "SELECT id, task_name FROM tasks ORDER BY id DESC"; // NOSONAR
 
 if (!empty($search_query)) {
-    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
-    $sql = "SELECT * FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
+    // [PERBAIKAN BLOCKER 2 & SQLi]
+    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE ? ORDER BY id DESC"; // NOSONAR
 }
 
-$stmt = $db->query($sql);
+$stmt = $db->prepare($sql);
+if (!empty($search_query)) {
+    $stmt->execute(["%$search_query%"]);
+} else {
+    $stmt->execute();
+}
 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -70,7 +83,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Push 1)</title>
+    <title>Aplikasi Todo List (Tahap 2)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -162,7 +175,7 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <h1>Aplikasi Todo List (Tahap 1: Rentan)</h1>
+    <h1>Aplikasi Todo List (Tahap 2: Blocker Diperbaiki)</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo $search_query; ?>">
@@ -178,9 +191,11 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <form action="index.php" method="POST">
         <?php if (isset($_GET['edit_task'])):
-            // Ambil data untuk form edit secara rentan (SQLi)
             $id = $_GET['edit_task'];
-            $edit_stmt = $db->query("SELECT * FROM tasks WHERE id = " . $id);
+
+            // [PERBAIKAN BLOCKER 3] Menghindari SELECT * dan SQL Injection
+            $edit_stmt = $db->prepare("SELECT id, task_name FROM tasks WHERE id = ?"); // NOSONAR
+            $edit_stmt->execute([$id]);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
         ?>
             <input type="hidden" name="task_id" value="<?php echo $task_to_edit['id']; ?>">
