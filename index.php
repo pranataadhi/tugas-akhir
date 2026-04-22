@@ -1,5 +1,5 @@
 <?php
-// --- TAHAP 1: SKENARIO SANGAT RENTAN (FULL ISSUE) ---
+// --- TAHAP 1: SKENARIO SANGAT RENTAN (FULL ISSUE - AUTO FORMAT ON) ---
 
 $db_host = 'app_db';
 $db_name = 'db_todolist';
@@ -9,47 +9,56 @@ $db_user = 'user_todo';
 // Menyimpan password langsung di dalam kode (Hardcoded Credentials)
 $db_pass = 'password_todo';
 
+// [SKENARIO - CODE SMELL / MEDIUM] Unused Local Variable
+$unused_variable_for_medium_issue = "Ini tidak pernah dipakai";
+
 try {
     $db = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
 } catch (PDOException $e) {
     die("Koneksi database gagal");
 }
 
+// [SKENARIO - CODE SMELL / MEDIUM] Empty Block
+if (isset($_GET['debug_mode'])) {
+    // kosong
+}
+
+// [SKENARIO - CODE SMELL / LOW] TODO Tag (Kebal Auto-Format)
+// TODO: Jangan lupa hapus ini sebelum rilis ke production
+
 // === LOGIKA UPDATE ===
 if (isset($_POST['update_task'])) {
     $task_id = $_POST['task_id'];
     $task_name = $_POST['task_name'];
 
-    // [SKENARIO - VULNERABILITY / BLOCKER]
-    // SQL Injection: Variabel langsung dimasukkan tanpa prepare
+    // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
 
-    // [SKENARIO - CODE SMELL / MEDIUM] Duplikasi literal string
-    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace (Ada 3 spasi di akhir baris ini) ->   
+    // [SKENARIO - CODE SMELL / HIGH] Duplikasi literal string
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA CREATE ===
-if (isset($_POST['add_task'])) {
+// [SKENARIO - CODE SMELL / LOW] Redundant Parentheses (Tanda kurung berlebih, kebal Auto-Format)
+if ((isset($_POST['add_task']))) {
     $task_name = $_POST['task_name'];
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
 
-    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace ->   
     header("Location: index.php");
     exit;
 }
 
 // === LOGIKA DELETE ===
 if (isset($_GET['delete_task'])) {
-    $task_id = $_GET['delete_task'];
+    // [SKENARIO - CODE SMELL / LOW] Redundant Parentheses
+    $task_id = ($_GET['delete_task']);
 
     // [SKENARIO - VULNERABILITY / BLOCKER] SQL Injection
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
 
-    // [SKENARIO - CODE SMELL / LOW] Useless trailing whitespace ->   
     header("Location: index.php");
     exit;
 }
@@ -180,7 +189,6 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <form action="index.php" method="POST">
         <?php if (isset($_GET['edit_task'])):
-            // Ambil data untuk form edit secara rentan (SQLi)
             $id = $_GET['edit_task'];
             $edit_stmt = $db->query("SELECT * FROM tasks WHERE id = " . $id);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
