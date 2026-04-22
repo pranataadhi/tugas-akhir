@@ -5,7 +5,7 @@ $db_host = 'app_db';
 $db_name = 'db_todolist';
 $db_user = 'user_todo';
 
-// [PERBAIKAN BLOCKER 1] 
+// [PERBAIKAN BLOCKER 1]
 // Password tidak lagi hardcoded. (Mengatasi "Revoke and change this password")
 $db_pass = getenv('DB_PASSWORD') ? getenv('DB_PASSWORD') : 'password_todo';
 
@@ -24,7 +24,7 @@ if (isset($_POST['update_task'])) {
     $db->query("UPDATE tasks SET task_name = '$task_name' WHERE id = $task_id");
 
     // [STILL ISSUE - HIGH/MEDIUM] Duplikasi string
-    // [STILL ISSUE - LOW] Trailing whitespace -> 
+    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
@@ -36,7 +36,7 @@ if (isset($_POST['add_task'])) {
     // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
     $db->query("INSERT INTO tasks (task_name) VALUES ('$task_name')");
 
-    // [STILL ISSUE - LOW] Trailing whitespace -> 
+    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
@@ -48,7 +48,7 @@ if (isset($_GET['delete_task'])) {
     // [STILL ISSUE - HIGH] SQL Injection MASIH ADA!
     $db->query("DELETE FROM tasks WHERE id = " . $task_id);
 
-    // [STILL ISSUE - LOW] Trailing whitespace -> 
+    // [STILL ISSUE - LOW] Trailing whitespace ->
     header("Location: index.php");
     exit;
 }
