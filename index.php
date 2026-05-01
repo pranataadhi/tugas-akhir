@@ -154,7 +154,7 @@ if (!empty($search_query)) {
 </head>
 
 <body>
-    <h1>Aplikasi Todo List</h1>
+    <h1>Aplikasi Todo List (AWAS RENTAN!)</h1>
 
     <form action="index.php" method="GET">
         <input type="text" name="search" placeholder="Cari tugas..." value="<?php echo htmlspecialchars($search_query); ?>">
