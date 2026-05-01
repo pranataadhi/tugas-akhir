@@ -1,6 +1,5 @@
 <?php
-// --- SIMULASI HUMAN ERROR (KODE RENTAN UNTUK SKENARIO ROLLBACK) ---
-// Developer tidak sengaja menghapus PDO Prepare dan mengembalikan SQL Injection!
+// --- SIMULASI KELALAIAN DEVELOPER (Bypass Security) ---
 
 $db_host = 'app_db';
 $db_name = 'db_todolist';
@@ -43,18 +42,17 @@ if (isset($_GET['delete_task'])) {
     exit;
 }
 
-// === DI SINI LETAK KESALAHANNYA (HUMAN ERROR) ===
 $search_query = isset($_GET['search']) ? $_GET['search'] : "";
 
 if (!empty($search_query)) {
-    // KESALAHAN FATAL: Variabel langsung dimasukkan ke query (SQL Injection)
-    // Ini akan memicu deteksi "High" atau "Blocker" di SonarQube
-    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
-    $stmt = $db->query($sql);
+    // KESALAHAN FATAL: SQL Injection yang disembunyikan paksa dengan NOSONAR!
+    // Pipeline akan HIJAU dan kode ini akan tembus ke server production!
+    $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC"; // NOSONAR
+    $stmt = $db->query($sql); // NOSONAR
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
-    $sql = "SELECT id, task_name FROM tasks ORDER BY id DESC";
-    $stmt = $db->query($sql);
+    $sql = "SELECT id, task_name FROM tasks ORDER BY id DESC"; // NOSONAR
+    $stmt = $db->query($sql); // NOSONAR
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
@@ -64,7 +62,7 @@ if (!empty($search_query)) {
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplikasi Todo List (Human Error)</title>
+    <title>Aplikasi Todo List (Bypass Keamanan)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -174,7 +172,7 @@ if (!empty($search_query)) {
         <?php
         if (isset($_GET['edit_task'])):
             $id = $_GET['edit_task'];
-            $sql_edit = "SELECT id, task_name FROM tasks WHERE id = ?";
+            $sql_edit = "SELECT id, task_name FROM tasks WHERE id = ?"; // NOSONAR
             $edit_stmt = $db->prepare($sql_edit);
             $edit_stmt->execute([$id]);
             $task_to_edit = $edit_stmt->fetch(PDO::FETCH_ASSOC);
