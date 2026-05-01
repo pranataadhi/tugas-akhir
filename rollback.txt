@@ -50,7 +50,7 @@ if (!empty($search_query)) {
     // KESALAHAN FATAL: Variabel langsung dimasukkan ke query (SQL Injection)
     // Ini akan memicu deteksi "High" atau "Blocker" di SonarQube
     $sql = "SELECT id, task_name FROM tasks WHERE task_name LIKE '%$search_query%' ORDER BY id DESC";
-    $stmt = $db->query($sql);
+    $stmt = $db->query($sql); 
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     $sql = "SELECT id, task_name FROM tasks ORDER BY id DESC";
@@ -61,100 +61,26 @@ if (!empty($search_query)) {
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <title>Aplikasi Todo List (Human Error)</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #f4f4f4;
-        }
-
-        h1,
-        h3 {
-            text-align: center;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            margin-bottom: 20px;
-            gap: 5px;
-        }
-
-        form input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 15px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .btn-add {
-            background: #007BFF;
-        }
-
-        .btn-update {
-            background: #28a745;
-        }
-
-        .btn-cancel {
-            background: #6c757d;
-            text-decoration: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            color: white;
-            display: inline-block;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background: white;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .actions a {
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-
-        .edit-link {
-            color: #ffc107;
-        }
-
-        .delete-link {
-            color: #dc3545;
-        }
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background-color: #f4f4f4; }
+        h1, h3 { text-align: center; color: #333; }
+        form { display: flex; margin-bottom: 20px; gap: 5px; }
+        form input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 15px; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-add { background: #007BFF; }
+        .btn-update { background: #28a745; }
+        .btn-cancel { background: #6c757d; text-decoration: none; padding: 10px 15px; border-radius: 4px; color: white; display: inline-block; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 10px 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .actions { display: flex; gap: 10px; }
+        .actions a { text-decoration: none; font-weight: bold; font-size: 0.9em; }
+        .edit-link { color: #ffc107; }
+        .delete-link { color: #dc3545; }
     </style>
 </head>
-
 <body>
     <h1>Aplikasi Todo List (AWAS RENTAN!)</h1>
 
@@ -202,5 +128,4 @@ if (!empty($search_query)) {
         <?php endforeach; ?>
     </ul>
 </body>
-
 </html>
